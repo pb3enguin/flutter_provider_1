@@ -48,15 +48,17 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+class Foo with ChangeNotifier {
+  String value = 'Foo';
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  void changeValue() {
+    value = value == 'Foo' ? 'Bar' : 'Foo';
+    notifyListeners();
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final dog = Dog(name: 'dog03', breed: 'breed03');
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -64,30 +66,33 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('Provider 01'),
       ),
-      body: Consumer<Dog>(
-        builder: (BuildContext context, Dog dog, Widget? child) {
+      body: ChangeNotifierProvider<Foo>(
+        create: (_) => Foo(),
+        child:
+            Consumer<Foo>(builder: (BuildContext context, Foo foo, Widget? _) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                child!,
-                const SizedBox(height: 10.0),
                 Text(
-                  '- name: ${dog.name}',
-                  style: const TextStyle(fontSize: 20.0),
+                  foo.value,
+                  style: TextStyle(fontSize: 40.0),
+                ),
+                const SizedBox(height: 10.0),
+                ElevatedButton(
+                  onPressed: () => foo.changeValue(),
+                  child: Text(
+                    'Change Value',
+                    style: TextStyle(fontSize: 20.0),
+                  ),
                 ),
                 const SizedBox(height: 10.0),
                 const BreedAndAge(),
               ],
             ),
           );
-        },
-        child: const Text(
-          // avoid rebuild
-          'I like dogs very much!',
-          style: TextStyle(fontSize: 20.0),
-        ),
+        }),
       ),
     );
   }
